@@ -1,0 +1,32 @@
+[project]
+name = "liana-mcp"
+dynamic = ["version"]
+description = "Natural language interface for cell-cell communication analysis with Liana through MCP."
+readme = "README.md"
+authors = [
+    { name = "shuang", email = "hsh-me@outlook.com" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "fastmcp>=2.3.0",
+    "liana>=0.1.9",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.23.5",
+]
+
+
+[project.scripts]
+liana-mcp = "liana_mcp.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "src/liana_mcp/__init__.py"
+
+
