@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from starlette.responses import FileResponse, Response
 
-PKG = __package__.upper()
+PKG = __package__.split('.')[0].upper()
 
 def filter_args(request, func):
     # sometime,it is a bit redundant, but I think it adds robustness in case the function parameters change
@@ -51,7 +51,22 @@ def add_op_log(adata, func, kwargs):
     logger.info(f"{func}: {new_kwargs}")
 
 
-def set_fig_path(func, **kwargs):
+def savefig(fig, file):
+    try:
+        file_path = Path(file)
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        if hasattr(fig, 'figure'):  # if Axes
+            fig.figure.savefig(file_path)
+        elif hasattr(fig, 'save'):  # for plotnine.ggplot.ggplot
+            fig.save(file_path)
+        else:  # if Figure 
+            fig.savefig(file_path)
+        return file_path
+    except Exception as e:
+        raise e
+
+
+def set_fig_path(func, fig=None, **kwargs):
     "maybe I need to save figure by myself, instead of using scanpy save function..."
     fig_dir = Path(os.getcwd()) / "figures"
 
@@ -60,9 +75,9 @@ def set_fig_path(func, **kwargs):
     args = []
     for k,v in kwargs.items():
         if isinstance(v, (tuple, list, set)):
-            args.append(f"{k}:{'-'.join([str(i) for i in v])}")
+            args.append(f"{k}-{'-'.join([str(i) for i in v])}")
         else:
-            args.append(f"{k}:{v}")
+            args.append(f"{k}-{v}")
     args_str = "_".join(args)
     if func == "rank_genes_groups_dotplot":
         old_path = fig_dir / 'dotplot_.png'
@@ -84,7 +99,11 @@ def set_fig_path(func, **kwargs):
             old_path = fig_dir / f"{func}.png"
         fig_path = fig_dir / f"{func}_{args_str}.png"
     try:
-        os.rename(old_path, fig_path)
+        if fig is not None:
+            savefig(fig, fig_path)
+        else:
+            os.rename(old_path, fig_path)
+        return fig_path
     except FileNotFoundError:
         print(f"The file {old_path} does not exist")
     except FileExistsError:
@@ -100,45 +119,6 @@ def set_fig_path(func, **kwargs):
         fig_path = f"http://{host}:{port}/figures/{Path(fig_path).name}"
         return fig_path
 
-
-def savefig(fig, func, **kwargs):
-    kwargs.pop("save", None)
-    kwargs.pop("show", None)
-    args = []
-    for k,v in kwargs.items():
-        if isinstance(v, (tuple, list, set)):
-            args.append(f"{k}:{'-'.join([str(i) for i in v])}")
-        elif isinstance(v, str):
-            args.append(f"{k}:{v}")
-        else:
-            continue
-    args_str = "_".join(args)
-
-    fig_dir = Path(os.getcwd()) / "figures"
-    fig_path = fig_dir / f"{func}_{args_str}.png"
-    # fig_path = "/data20T/dev/scmcphub/figures/aaa.png"
-    try:
-        # 确保父目录存在
-        file_path = Path(fig_path)
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        if hasattr(fig, 'figure'):  # if Axes
-            fig.figure.savefig(file_path)
-        elif hasattr(fig, 'save'):  # for plotnine.ggplot.ggplot
-            fig.save(file_path)
-        else:  # if Figure 
-            fig.savefig(file_path)
-
-    except Exception as e:
-        raise e
-    transport = os.environ.get(f"{PKG}_TRANSPORT") or os.environ.get("SCMCP_TRANSPORT")
-    if transport == "stdio":
-        return fig_path
-    else:
-        host = os.environ.get(f"{PKG}_HOST")  or os.environ.get("SCMCP_HOST")
-        port = os.environ.get(f"{PKG}_PORT") or os.environ.get("SCMCP_PORT")
-        fig_path = f"http://{host}:{port}/figures/{Path(fig_path).name}"
-        return fig_path
 
 async def get_figure(request):
     figure_name = request.path_params["figure_name"]
