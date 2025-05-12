@@ -46,7 +46,9 @@ def run(
     
     # Set environment variables
     if log_file is not None:
-        os.environ[f'{PKG}_LOG_FILE'] = log_file        
+        os.environ[f'{PKG}_LOG_FILE'] = log_file
+    if forward is not None:
+        os.environ[f'{PKG}_FORWARD'] = forward           
     os.environ[f'{PKG}_TRANSPORT'] = transport.value
     os.environ[f'{PKG}_HOST'] = host
     os.environ[f'{PKG}_PORT'] = str(port)
