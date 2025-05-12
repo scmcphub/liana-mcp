@@ -25,19 +25,26 @@ async def communicate(
     dtype: str = Field(default="exp", description="the datatype of anndata.X"),
 ):
     """Cell-cell communication analysis with one method (cellphonedb, cellchat, connectome, natmi, etc.)"""
-    result = await forward_request("ccc_communicate", request, sampleid=sampleid, dtype=dtype)
-    if result is not None:
-        return result
-    ads = ctx.request_context.lifespan_context
-    adata = ads.get_adata(dtype=dtype, sampleid=sampleid)
-    method = request.method
-    method_func = getattr(li.mt, method)
-    func_kwargs = filter_args(request, method_func)
-    method_func(adata, **func_kwargs)
-    add_op_log(adata, method_func, func_kwargs)
-    return [
-        {"sampleid": sampleid or ads.active_id, "adata": adata, "dtype": dtype},
-    ]
+
+    try:
+        result = await forward_request("ccc_communicate", request, sampleid=sampleid, dtype=dtype)
+        if result is not None:
+            return result
+        ads = ctx.request_context.lifespan_context
+        adata = ads.get_adata(dtype=dtype, sampleid=sampleid)
+        method = request.method
+        method_func = getattr(li.mt, method)
+        func_kwargs = filter_args(request, method_func)
+        method_func(adata, **func_kwargs)
+        add_op_log(adata, method_func, func_kwargs)
+        return [
+            {"sampleid": sampleid or ads.active_id, "adata": adata, "dtype": dtype},
+        ]
+    except Exception as e:
+        if hasattr(e, '__context__') and e.__context__:
+            raise Exception(f"{str(e.__context__)}")
+        else:
+            raise e
 
 
 @ccc_mcp.tool()
@@ -48,14 +55,21 @@ async def rank_aggregate(
     dtype: str = Field(default="exp", description="the datatype of anndata.X"),
 ):
     """Get an aggregate of ligand-receptor scores from multiple Cell-cell communication methods."""
-    result = await forward_request("ccc_rank_aggregate", request, sampleid=sampleid, dtype=dtype)
-    if result is not None:
-        return result
-    ads = ctx.request_context.lifespan_context
-    adata = ads.get_adata(dtype=dtype, sampleid=sampleid)
-    func_kwargs = filter_args(request, li.mt.rank_aggregate)
-    li.mt.rank_aggregate(adata, **func_kwargs)
-    add_op_log(adata, li.mt.rank_aggregate, func_kwargs)
-    return [
-        {"sampleid": sampleid or ads.active_id, "adata": adata, "dtype": dtype},
-    ]
+
+    try:
+        result = await forward_request("ccc_rank_aggregate", request, sampleid=sampleid, dtype=dtype)
+        if result is not None:
+            return result
+        ads = ctx.request_context.lifespan_context
+        adata = ads.get_adata(dtype=dtype, sampleid=sampleid)
+        func_kwargs = filter_args(request, li.mt.rank_aggregate)
+        li.mt.rank_aggregate(adata, **func_kwargs)
+        add_op_log(adata, li.mt.rank_aggregate, func_kwargs)
+        return [
+            {"sampleid": sampleid or ads.active_id, "adata": adata, "dtype": dtype},
+        ]
+    except Exception as e:
+        if hasattr(e, '__context__') and e.__context__:
+            raise Exception(f"{str(e.__context__)}")
+        else:
+            raise e
