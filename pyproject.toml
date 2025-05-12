@@ -8,8 +8,10 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
+    "mcp>=1.8.0",
     "fastmcp>=2.3.0",
     "liana>=0.1.9",
+    "scanpy"
 ]
 
 [dependency-groups]
@@ -28,5 +30,10 @@ build-backend = "hatchling.build"
 
 [tool.hatch.version]
 path = "src/liana_mcp/__init__.py"
+
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
 
 
