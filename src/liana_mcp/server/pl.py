@@ -6,20 +6,26 @@ import os
 from ..schema.pl import *
 from ..util import add_op_log, savefig, filter_args, forward_request
 from ..logging_config import setup_logger
+
 logger = setup_logger()
 
 
-pl_mcp = FastMCP("LianaMCP-CCC-Server")
+pl_mcp = FastMCP("lianaMCP-pl-Server")
 
 
 @pl_mcp.tool()
-async def circle_plot(request: CirclePlotModel, ctx: Context):
+async def circle_plot(
+    request: CirclePlotModel, 
+    ctx: Context,
+    dtype: str = Field(default="exp", description="the datatype of anndata.X"),
+    sampleid: str = Field(default=None, description="adata sampleid for plotting")
+):
     """Visualize cell-cell communication network using a circular plot."""
-    result = await forward_request("pl_circle_plot", request.model_dump())
+    result = await forward_request("pl_circle_plot", request, sampleid=sampleid, dtype=dtype)
     if result is not None:
         return result
     ads = ctx.request_context.lifespan_context
-    adata = ads.adata_dic[ads.active_id]
+    adata = ads.get_adata(sampleid=sampleid, dtype=dtype)
     func_kwargs = request.model_dump(exclude_none=True)
     pval = func_kwargs.pop("specificity_cutoff", 0.05)
     res_key = func_kwargs.get("uns_key", "liana_res")
@@ -37,14 +43,19 @@ async def circle_plot(request: CirclePlotModel, ctx: Context):
 
 
 @pl_mcp.tool()
-async def dotplot(request: DotPlotModel, ctx: Context):
+async def dotplot(
+    request: DotPlotModel, 
+    ctx: Context,
+    dtype: str = Field(default="exp", description="the datatype of anndata.X"),
+    sampleid: str = Field(default=None, description="adata sampleid for plotting")
+):
     """Visualize cell-cell communication interactions using a dotplot."""
-    result = await forward_request("ccc_dotplot", request.model_dump())
+    result = await forward_request("ccc_dotplot", request, sampleid=sampleid, dtype=dtype)
     if result is not None:
         return result
     
     ads = ctx.request_context.lifespan_context
-    adata = ads.adata_dic[ads.active_id]
+    adata = ads.get_adata(sampleid=sampleid, dtype=dtype)
 
     func_kwargs = filter_args(request, li.pl.dotplot)
     pval = func_kwargs.pop("specificity_cutoff", 0.05)

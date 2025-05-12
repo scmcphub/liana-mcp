@@ -12,36 +12,50 @@ ccc_mcp = FastMCP("LianaMCP-CCC-Server")
 logger = setup_logger()
 
 @ccc_mcp.tool()
-async def ls_ccc_method(request: ListCCCMethodModel, ctx: Context):
+async def ls_ccc_method():
     """List cell-cell communication method."""
     return str(li.mt.show_methods())
 
 
 @ccc_mcp.tool()
-async def communicate(request: CCCModel, ctx: Context):
+async def communicate(
+    request: CCCModel, 
+    ctx: Context,
+    sampleid: str = Field(default=None, description="adata sampleid for analysis"),
+    dtype: str = Field(default="exp", description="the datatype of anndata.X"),
+):
     """Cell-cell communication analysis with one method (cellphonedb, cellchat, connectome, natmi, etc.)"""
-    result = await forward_request("ccc_communicate", request.model_dump())
+    result = await forward_request("ccc_communicate", request, sampleid=sampleid, dtype=dtype)
     if result is not None:
         return result
     ads = ctx.request_context.lifespan_context
-    adata = ads.adata_dic[ads.active_id]
+    adata = ads.get_adata(dtype=dtype, sampleid=sampleid)
     method = request.method
     method_func = getattr(li.mt, method)
     func_kwargs = filter_args(request, method_func)
     method_func(adata, **func_kwargs)
     add_op_log(adata, method_func, func_kwargs)
-    return adata
+    return [
+        {"sampleid": sampleid or ads.active_id, "adata": adata, "dtype": dtype},
+    ]
 
 
 @ccc_mcp.tool()
-async def rank_aggregate(request: RankAggregateModel, ctx: Context):
+async def rank_aggregate(
+    request: RankAggregateModel, 
+    ctx: Context,
+    sampleid: str = Field(default=None, description="adata sampleid for analysis"),
+    dtype: str = Field(default="exp", description="the datatype of anndata.X"),
+):
     """Get an aggregate of ligand-receptor scores from multiple Cell-cell communication methods."""
-    result = await forward_request("ccc_rank_aggregate", request.model_dump())
+    result = await forward_request("ccc_rank_aggregate", request, sampleid=sampleid, dtype=dtype)
     if result is not None:
         return result
     ads = ctx.request_context.lifespan_context
-    adata = ads.adata_dic[ads.active_id]
+    adata = ads.get_adata(dtype=dtype, sampleid=sampleid)
     func_kwargs = filter_args(request, li.mt.rank_aggregate)
     li.mt.rank_aggregate(adata, **func_kwargs)
     add_op_log(adata, li.mt.rank_aggregate, func_kwargs)
-    return adata
+    return [
+        {"sampleid": sampleid or ads.active_id, "adata": adata, "dtype": dtype},
+    ]
