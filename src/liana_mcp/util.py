@@ -131,11 +131,12 @@ def savefig(fig, func, **kwargs):
 
     except Exception as e:
         raise e
-    if os.environ.get(f"{PKG}_TRANSPORT") == "stdio":
+    transport = os.environ.get(f"{PKG}_TRANSPORT") or os.environ.get("SCMCP_TRANSPORT")
+    if transport == "stdio":
         return fig_path
     else:
-        host = os.environ.get(f"{PKG}_HOST")
-        port = os.environ.get(f"{PKG}_PORT")
+        host = os.environ.get(f"{PKG}_HOST")  or os.environ.get("SCMCP_HOST")
+        port = os.environ.get(f"{PKG}_PORT") or os.environ.get("SCMCP_PORT")
         fig_path = f"http://{host}:{port}/figures/{Path(fig_path).name}"
         return fig_path
 
@@ -150,16 +151,22 @@ async def get_figure(request):
     return FileResponse(figure_path)
 
 
-async def forward_request(func, kwargs):
+async def forward_request(func, request, **kwargs):
     from fastmcp import Client
 
-    forward_url = os.environ.get("LIANAMCP_FORWARD", False)
+    forward_url = os.environ.get(f"{PKG}_FORWARD")
+    request_kwargs = request.model_dump()
+    request_args = request.model_fields_set
+    func_kwargs = {"request": {k: request_kwargs.get(k) for k in request_args}}
+    func_kwargs.update({k:v for k,v in kwargs.items() if v is not None})
     if not forward_url:
         return None
         
     client = Client(forward_url)
     async with client:
-        result = await client.call_tool(func, {"request": kwargs})
+        tools = await client.list_tools()
+        func = [t.name for t in tools if t.name.endswith(func)][0]
+        result = await client.call_tool(func, func_kwargs)
     return result
 
 
