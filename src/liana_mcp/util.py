@@ -47,7 +47,7 @@ def add_op_log(adata, func, kwargs):
     adata.uns["operation"]["op"][hash_key] = {func_name: new_kwargs}
     adata.uns["operation"]["opid"].append(hash_key)
     from .logging_config import setup_logger
-    logger = setup_logger(log_file=os.environ.get("SCANPYMCP_LOG_FILE", None))
+    logger = setup_logger()
     logger.info(f"{func}: {new_kwargs}")
 
 
@@ -146,9 +146,11 @@ async def forward_request(func, request, **kwargs):
     async with client:
         tools = await client.list_tools()
         func = [t.name for t in tools if t.name.endswith(func)][0]
-        result = await client.call_tool(func, func_kwargs)
-    return result
-
+        try:
+            result = await client.call_tool(func, func_kwargs)
+            return result
+        except Exception as e:
+            raise e
 
 def obsm2adata(adata, obsm_key):
     from anndata import AnnData
