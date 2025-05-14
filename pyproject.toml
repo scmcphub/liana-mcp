@@ -10,6 +10,7 @@ requires-python = ">=3.10"
 dependencies = [
     "mcp>=1.8.0",
     "fastmcp>=2.3.0",
+    "scmcp-shared",
     "liana>=0.1.9",
     "scanpy"
 ]
