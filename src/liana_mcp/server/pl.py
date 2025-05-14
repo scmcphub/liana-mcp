@@ -4,8 +4,8 @@ import inspect
 from pathlib import Path
 import os
 from ..schema.pl import *
-from ..util import add_op_log, filter_args, forward_request, set_fig_path
-from ..logging_config import setup_logger
+from scmcp_shared.util import add_op_log, filter_args, forward_request, set_fig_path
+from scmcp_shared.logging_config import setup_logger
 
 logger = setup_logger()
 
@@ -45,7 +45,7 @@ async def circle_plot(
             raise e
 
 @pl_mcp.tool()
-async def dotplot(
+async def ccc_dotplot(
     request: DotPlotModel, 
     ctx: Context,
     dtype: str = Field(default="exp", description="the datatype of anndata.X"),

@@ -11,7 +11,6 @@ import typer
 from enum import Enum
 from typing import Optional
 
-PKG = __package__.upper()
 
 app = typer.Typer(
     name="lianamcp",
@@ -46,23 +45,22 @@ def run(
     
     # Set environment variables
     if log_file is not None:
-        os.environ[f'{PKG}_LOG_FILE'] = log_file
+        os.environ['SCMCP_LOG_FILE'] = log_file
     if forward is not None:
-        os.environ[f'{PKG}_FORWARD'] = forward           
-    os.environ[f'{PKG}_TRANSPORT'] = transport.value
-    os.environ[f'{PKG}_HOST'] = host
-    os.environ[f'{PKG}_PORT'] = str(port)
-    os.environ[f'{PKG}_MODULE'] = module.value
+        os.environ['SCMCP_FORWARD'] = forward           
+    os.environ['SCMCP_TRANSPORT'] = transport.value
+    os.environ['SCMCP_HOST'] = host
+    os.environ['SCMCP_PORT'] = str(port)
+    os.environ['SCMCP_MODULE'] = module.value
     
     from .server import liana_mcp, setup
+    from scmcp_shared.util import add_figure_route
+
     asyncio.run(setup())
     if transport == Transport.STDIO:
         liana_mcp.run()
     elif transport == Transport.SSE:
-        from .util import get_figure
-        from starlette.routing import Route
-
-        liana_mcp._additional_http_routes = [Route("/figures/{figure_name}", endpoint=get_figure)]        
+        add_figure_route(liana_mcp)
         liana_mcp.run(
                 transport="sse",
                 host=host, 
@@ -71,10 +69,7 @@ def run(
             )
 
     elif transport == Transport.SHTTP:
-        from .util import get_figure
-        from starlette.routing import Route
-
-        liana_mcp._additional_http_routes = [Route("/figures/{figure_name}", endpoint=get_figure)]
+        add_figure_route(liana_mcp)
         liana_mcp.run(
                 transport="streamable-http",
                 host=host, 

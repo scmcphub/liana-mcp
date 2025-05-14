@@ -4,8 +4,9 @@ import inspect
 from pathlib import Path
 import os
 from ..schema.ccc import *
-from ..util import add_op_log, savefig, filter_args, forward_request
-from ..logging_config import setup_logger
+from scmcp_shared.util import add_op_log, savefig, filter_args, forward_request
+from scmcp_shared.logging_config import setup_logger
+
 
 ccc_mcp = FastMCP("LianaMCP-CCC-Server")
 
