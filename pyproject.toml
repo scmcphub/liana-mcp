@@ -9,8 +9,8 @@ authors = [
 requires-python = ">=3.10"
 dependencies = [
     "mcp>=1.8.0",
-    "fastmcp>=2.3.0",
-    "scmcp-shared",
+    "fastmcp>=2.3.4",
+    "scmcp-shared>=0.2.0",
     "liana>=0.1.9",
     "scanpy"
 ]
