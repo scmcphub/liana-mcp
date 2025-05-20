@@ -4,7 +4,7 @@ import inspect
 from pathlib import Path
 import os
 from ..schema.ccc import *
-from scmcp_shared.util import add_op_log, savefig, filter_args, forward_request
+from scmcp_shared.util import add_op_log, savefig, filter_args, forward_request, get_ads
 from scmcp_shared.logging_config import setup_logger
 
 
@@ -20,26 +20,23 @@ async def ls_ccc_method():
 
 @ccc_mcp.tool()
 async def communicate(
-    request: CCCModel, 
-    ctx: Context,
-    sampleid: str = Field(default=None, description="adata sampleid for analysis"),
-    dtype: str = Field(default="exp", description="the datatype of anndata.X"),
+    request: CCCModel
 ):
     """Cell-cell communication analysis with one method (cellphonedb, cellchat, connectome, natmi, etc.)"""
 
     try:
-        result = await forward_request("ccc_communicate", request, sampleid=sampleid, dtype=dtype)
+        result = await forward_request("ccc_communicate", request)
         if result is not None:
             return result
-        ads = ctx.request_context.lifespan_context
-        adata = ads.get_adata(dtype=dtype, sampleid=sampleid)
+        ads = get_ads()
+        adata = ads.get_adata(request=request)
         method = request.method
         method_func = getattr(li.mt, method)
         func_kwargs = filter_args(request, method_func)
         method_func(adata, **func_kwargs)
         add_op_log(adata, method_func, func_kwargs)
         return [
-            {"sampleid": sampleid or ads.active_id, "adata": adata, "dtype": dtype},
+            {"sampleid": request.sampleid or ads.active_id, "adtype": request.adtype, "adata": adata},
         ]
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
@@ -51,23 +48,20 @@ async def communicate(
 @ccc_mcp.tool()
 async def rank_aggregate(
     request: RankAggregateModel, 
-    ctx: Context,
-    sampleid: str = Field(default=None, description="adata sampleid for analysis"),
-    dtype: str = Field(default="exp", description="the datatype of anndata.X"),
 ):
     """Get an aggregate of ligand-receptor scores from multiple Cell-cell communication methods."""
 
     try:
-        result = await forward_request("ccc_rank_aggregate", request, sampleid=sampleid, dtype=dtype)
+        result = await forward_request("ccc_rank_aggregate", request)
         if result is not None:
             return result
-        ads = ctx.request_context.lifespan_context
-        adata = ads.get_adata(dtype=dtype, sampleid=sampleid)
+        ads = get_ads()
+        adata = ads.get_adata(request=request)
         func_kwargs = filter_args(request, li.mt.rank_aggregate)
         li.mt.rank_aggregate(adata, **func_kwargs)
         add_op_log(adata, li.mt.rank_aggregate, func_kwargs)
         return [
-            {"sampleid": sampleid or ads.active_id, "adata": adata, "dtype": dtype},
+            {"sampleid": request.sampleid or ads.active_id, "adtype": request.adtype, "adata": adata},
         ]
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
