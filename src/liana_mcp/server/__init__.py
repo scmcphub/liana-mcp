@@ -4,35 +4,14 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
 
-from scmcp_shared.server import io_mcp
+import scmcp_shared.server as shs
+from scmcp_shared.util import filter_tools
+
 from .ccc import ccc_mcp
 from.pl import pl_mcp
 
 
-
-class AdataState:
-    def __init__(self):
-        self.adata_dic = {"exp": {}}
-        self.active_id = None
-        self.metadata = {}
-
-    def get_adata(self, sampleid=None, dtype="exp"):
-        try:
-            if self.active_id is None:
-                return None
-            sampleid = sampleid or self.active_id
-            return self.adata_dic[dtype][sampleid]
-        except KeyError as e:
-            raise KeyError(f"Key {e} not found in adata_dic")
-        except Exception as e:
-            raise Exception(f"Error: {e}")
-    
-    def set_adata(self, adata, sampleid=None, sdtype="exp"):
-        sampleid = sampleid or self.active_id
-        self.adata_dic[sdtype][sampleid] = adata
-
-
-ads = AdataState()
+ads = shs.AdataState()
 
 @asynccontextmanager
 async def adata_lifespan(server: FastMCP) -> AsyncIterator[Any]:
@@ -42,12 +21,14 @@ liana_mcp = FastMCP("Liana-MCP-Server", lifespan=adata_lifespan)
 
 
 async def setup(modules=None):
+    ul_mcp = await filter_tools(shs.ul_mcp, include_tools=["query_op_log", "check_samples"])
     mcp_dic = {
-        "io": io_mcp, 
+        "io": shs.io_mcp, 
         "ccc": ccc_mcp, 
         "pl": pl_mcp, 
+        "ul": ul_mcp
         }
     if modules is None or modules == "all":
-        modules = ["io", "ccc", "pl"]
+        modules = ["io", "ccc", "pl", "ul"]
     for module in modules:
         await liana_mcp.import_server(module, mcp_dic[module])
