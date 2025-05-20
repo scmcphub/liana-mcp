@@ -4,17 +4,16 @@ from pydantic import (
     computed_field,
     field_validator,
     model_validator,
-    BaseModel
 )
 from typing import Optional, List, Dict, Union, Literal, Tuple
+from scmcp_shared.schema import AdataModel
 
-
-class ListCCCMethodModel(BaseModel):
+class ListCCCMethodModel(AdataModel):
     """ListCCCMethodModel"""    
     pass    
 
 
-class RankAggregateModel(BaseModel):
+class RankAggregateModel(AdataModel):
     """Input schema for LIANA's rank_aggregate method for cell-cell communication analysis."""
     
     groupby: str = Field(
@@ -83,7 +82,7 @@ class RankAggregateModel(BaseModel):
     )
 
 
-class CCCModel(BaseModel):
+class CCCModel(AdataModel):
     """Input schema for LIANA's cell-cell communication analysis."""
     
     method: Literal[
