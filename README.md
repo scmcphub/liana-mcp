@@ -25,6 +25,7 @@ You can use Liana-mcp in most AI clients, plugins, or agent frameworks that supp
 
 A demo showing scRNA-Seq cell cluster analysis in a AI client Cherry Studio using natural language based on Liana-mcp
 
+https://github.com/user-attachments/assets/40fb5bd8-a166-4993-9979-3258ef6646a0
 
 ## 🏎️ Quickstart
 
