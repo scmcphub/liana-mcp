@@ -1,4 +1,5 @@
 from fastmcp import FastMCP, Context
+from fastmcp.exceptions import ToolError
 import liana as li
 import inspect
 from pathlib import Path
@@ -38,11 +39,14 @@ async def communicate(
         return [
             {"sampleid": request.sampleid or ads.active_id, "adtype": request.adtype, "adata": adata},
         ]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
+
 
 
 @ccc_mcp.tool()
@@ -63,8 +67,10 @@ async def rank_aggregate(
         return [
             {"sampleid": request.sampleid or ads.active_id, "adtype": request.adtype, "adata": adata},
         ]
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)

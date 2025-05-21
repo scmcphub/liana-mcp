@@ -1,4 +1,5 @@
 from fastmcp import FastMCP, Context
+from fastmcp.exceptions import ToolError
 import liana as li
 import inspect
 from pathlib import Path
@@ -35,11 +36,14 @@ async def circle_plot(
         fig_path = set_fig_path(ax, li.pl.circle_plot, **func_kwargs)
         add_op_log(adata, li.pl.circle_plot, func_kwargs)
         return {"figpath": str(fig_path)}
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
+
 
 @pl_mcp.tool()
 async def ccc_dotplot(
@@ -69,8 +73,10 @@ async def ccc_dotplot(
         func_kwargs["filter_fun"] = f"lambda x: x[{pval_col}] <= {pval}"
         add_op_log(adata, li.pl.dotplot, func_kwargs)
         return {"figpath": str(fig_path)}
+    except ToolError as e:
+        raise ToolError(e)
     except Exception as e:
         if hasattr(e, '__context__') and e.__context__:
-            raise Exception(f"{str(e.__context__)}")
+            raise ToolError(e.__context__)
         else:
-            raise e
+            raise ToolError(e)
