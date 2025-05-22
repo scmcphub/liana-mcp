@@ -3,13 +3,13 @@ from pydantic import (
     ValidationInfo,
     computed_field,
     field_validator,
-    model_validator,
+    model_validator,BaseModel
 )
 from typing import Optional, List, Dict, Union, Literal, Tuple
-from scmcp_shared.schema import AdataModel
 
 
-class CirclePlotModel(AdataModel):
+
+class CirclePlotModel(BaseModel):
     """Input schema for LIANA's circle_plot visualization for cell-cell communication networks."""
     
     uns_key: Optional[str] = Field(
@@ -136,7 +136,7 @@ class CirclePlotModel(AdataModel):
     )
 
 
-class DotPlotModel(AdataModel):
+class DotPlotModel(BaseModel):
     """Input schema for LIANA's dotplot visualization for cell-cell communication networks."""
     
     uns_key: str = Field(

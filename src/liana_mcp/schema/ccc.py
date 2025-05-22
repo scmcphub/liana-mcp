@@ -3,17 +3,17 @@ from pydantic import (
     ValidationInfo,
     computed_field,
     field_validator,
-    model_validator,
+    model_validator,BaseModel
 )
 from typing import Optional, List, Dict, Union, Literal, Tuple
-from scmcp_shared.schema import AdataModel
 
-class ListCCCMethodModel(AdataModel):
+
+class ListCCCMethodModel(BaseModel):
     """ListCCCMethodModel"""    
     pass    
 
 
-class RankAggregateModel(AdataModel):
+class RankAggregateModel(BaseModel):
     """Input schema for LIANA's rank_aggregate method for cell-cell communication analysis."""
     
     groupby: str = Field(
@@ -82,7 +82,7 @@ class RankAggregateModel(AdataModel):
     )
 
 
-class CCCModel(AdataModel):
+class CCCModel(BaseModel):
     """Input schema for LIANA's cell-cell communication analysis."""
     
     method: Literal[

@@ -7,7 +7,7 @@ import os
 from ..schema.pl import *
 from scmcp_shared.util import add_op_log, filter_args, forward_request, set_fig_path, get_ads
 from scmcp_shared.logging_config import setup_logger
-
+from scmcp_shared.schema import AdataModel
 logger = setup_logger()
 
 
@@ -17,14 +17,15 @@ pl_mcp = FastMCP("lianaMCP-pl-Server")
 @pl_mcp.tool()
 async def circle_plot(
     request: CirclePlotModel, 
+    adinfo: AdataModel = AdataModel()
 ):
     """Visualize cell-cell communication network using a circular plot."""
     try:
-        result = await forward_request("pl_circle_plot", request)
+        result = await forward_request("pl_circle_plot", request, adinfo)
         if result is not None:
             return result
         ads = get_ads()
-        adata = ads.get_adata(request=request)
+        adata = ads.get_adata(adinfo=adinfo)
         func_kwargs = filter_args(request, li.pl.circle_plot)
         pval = func_kwargs.pop("specificity_cutoff", 0.05)
         res_key = func_kwargs.get("uns_key", "liana_res")
@@ -34,7 +35,7 @@ async def circle_plot(
         ax = li.pl.circle_plot(adata, **func_kwargs)
         func_kwargs["filter_fun"] = f"{pval}"
         fig_path = set_fig_path(ax, li.pl.circle_plot, **func_kwargs)
-        add_op_log(adata, li.pl.circle_plot, func_kwargs)
+        add_op_log(adata, li.pl.circle_plot, func_kwargs, adinfo)
         return {"figpath": str(fig_path)}
     except ToolError as e:
         raise ToolError(e)
@@ -48,15 +49,16 @@ async def circle_plot(
 @pl_mcp.tool()
 async def ccc_dotplot(
     request: DotPlotModel, 
+    adinfo: AdataModel = AdataModel()
 ):
     """Visualize cell-cell communication interactions using a dotplot."""
     try:
-        result = await forward_request("ccc_dotplot", request)
+        result = await forward_request("ccc_dotplot", request, adinfo)
         if result is not None:
             return result
         
         ads = get_ads()
-        adata = ads.get_adata(request=request)
+        adata = ads.get_adata(adinfo=adinfo)
         func_kwargs = filter_args(request, li.pl.dotplot)
         pval = func_kwargs.pop("specificity_cutoff", 0.05)
         res_key = func_kwargs.get("uns_key", "liana_res")
@@ -71,7 +73,7 @@ async def ccc_dotplot(
         func_kwargs["filter_fun"] = f"{pval}"
         fig_path = set_fig_path(fig, li.pl.dotplot, **func_kwargs)
         func_kwargs["filter_fun"] = f"lambda x: x[{pval_col}] <= {pval}"
-        add_op_log(adata, li.pl.dotplot, func_kwargs)
+        add_op_log(adata, li.pl.dotplot, func_kwargs, adinfo)
         return {"figpath": str(fig_path)}
     except ToolError as e:
         raise ToolError(e)

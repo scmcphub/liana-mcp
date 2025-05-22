@@ -7,7 +7,7 @@ import os
 from ..schema.ccc import *
 from scmcp_shared.util import add_op_log, savefig, filter_args, forward_request, get_ads
 from scmcp_shared.logging_config import setup_logger
-
+from scmcp_shared.schema import AdataModel
 
 ccc_mcp = FastMCP("LianaMCP-CCC-Server")
 
@@ -21,23 +21,24 @@ async def ls_ccc_method():
 
 @ccc_mcp.tool()
 async def communicate(
-    request: CCCModel
+    request: CCCModel,
+    adinfo: AdataModel = AdataModel()
 ):
     """Cell-cell communication analysis with one method (cellphonedb, cellchat, connectome, natmi, etc.)"""
 
     try:
-        result = await forward_request("ccc_communicate", request)
+        result = await forward_request("ccc_communicate", request, adinfo)
         if result is not None:
             return result
         ads = get_ads()
-        adata = ads.get_adata(request=request)
+        adata = ads.get_adata(adinfo=adinfo)
         method = request.method
         method_func = getattr(li.mt, method)
         func_kwargs = filter_args(request, method_func)
         method_func(adata, **func_kwargs)
-        add_op_log(adata, method_func, func_kwargs)
+        add_op_log(adata, method_func, func_kwargs, adinfo)
         return [
-            {"sampleid": request.sampleid or ads.active_id, "adtype": request.adtype, "adata": adata},
+            {"sampleid": adinfo.sampleid or ads.active_id, "adtype": adinfo.adtype, "adata": adata},
         ]
     except ToolError as e:
         raise ToolError(e)
@@ -52,20 +53,21 @@ async def communicate(
 @ccc_mcp.tool()
 async def rank_aggregate(
     request: RankAggregateModel, 
+    adinfo: AdataModel = AdataModel()
 ):
     """Get an aggregate of ligand-receptor scores from multiple Cell-cell communication methods."""
 
     try:
-        result = await forward_request("ccc_rank_aggregate", request)
+        result = await forward_request("ccc_rank_aggregate", request, adinfo)
         if result is not None:
             return result
         ads = get_ads()
-        adata = ads.get_adata(request=request)
+        adata = ads.get_adata(adinfo=adinfo)
         func_kwargs = filter_args(request, li.mt.rank_aggregate)
         li.mt.rank_aggregate(adata, **func_kwargs)
-        add_op_log(adata, li.mt.rank_aggregate, func_kwargs)
+        add_op_log(adata, li.mt.rank_aggregate, func_kwargs, adinfo)
         return [
-            {"sampleid": request.sampleid or ads.active_id, "adtype": request.adtype, "adata": adata},
+            {"sampleid": adinfo.sampleid or ads.active_id, "adtype": adinfo.adtype, "adata": adata},
         ]
     except ToolError as e:
         raise ToolError(e)
