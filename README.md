@@ -33,20 +33,27 @@ https://github.com/user-attachments/assets/40fb5bd8-a166-4993-9979-3258ef6646a0
 
 Install from PyPI
 ```
-pip install Liana-mcp
+pip install liana-mcp
 ```
 you can test it by running
 ```
 liana-mcp run
 ```
 
-#### run scnapy-server locally
+
+#### run liana-mcp locally
 Refer to the following configuration in your MCP client:
+
+check path
+```
+$ which liana 
+/home/test/bin/liana-mcp
+```
 
 ```
 "mcpServers": {
   "liana-mcp": {
-    "command": "liana-mcp",
+    "command": "/home/test/bin/liana-mcp",
     "args": [
       "run"
     ]
@@ -54,17 +61,22 @@ Refer to the following configuration in your MCP client:
 }
 ```
 
-#### run scnapy-server remotely
+#### run liana-server remotely
 Refer to the following configuration in your MCP client:
 
 run it in your server
 ```
-Liana-mcp run --transport shttp --port 8000
+liana-mcp run --transport shttp --port 8000
 ```
 
-Then configure your MCP client, like this:
+Then configure your MCP client in local AI client, like this:
 ```
-http://localhost:8000/mcp
+
+"mcpServers": {
+  "liana-mcp": {
+    "url": "http://localhost:8000/mcp"
+  }
+}
 ```
 
 ## 🤝 Contributing
