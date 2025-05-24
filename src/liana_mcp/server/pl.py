@@ -5,7 +5,7 @@ import inspect
 from pathlib import Path
 import os
 from ..schema.pl import *
-from scmcp_shared.util import add_op_log, filter_args, forward_request, set_fig_path, get_ads
+from scmcp_shared.util import add_op_log, filter_args, forward_request, savefig, get_ads
 from scmcp_shared.logging_config import setup_logger
 from scmcp_shared.schema import AdataModel
 logger = setup_logger()
@@ -34,7 +34,7 @@ async def circle_plot(
             func_kwargs["filter_fun"] = lambda x: x[pval_col] <= pval
         ax = li.pl.circle_plot(adata, **func_kwargs)
         func_kwargs["filter_fun"] = f"{pval}"
-        fig_path = set_fig_path(ax, li.pl.circle_plot, **func_kwargs)
+        fig_path = savefig(ax, li.pl.circle_plot, **func_kwargs)
         add_op_log(adata, li.pl.circle_plot, func_kwargs, adinfo)
         return {"figpath": str(fig_path)}
     except ToolError as e:
@@ -71,7 +71,7 @@ async def ccc_dotplot(
         
         fig = li.pl.dotplot(adata, **func_kwargs)
         func_kwargs["filter_fun"] = f"{pval}"
-        fig_path = set_fig_path(fig, li.pl.dotplot, **func_kwargs)
+        fig_path = savefig(fig, li.pl.dotplot, **func_kwargs)
         func_kwargs["filter_fun"] = f"lambda x: x[{pval_col}] <= {pval}"
         add_op_log(adata, li.pl.dotplot, func_kwargs, adinfo)
         return {"figpath": str(fig_path)}
