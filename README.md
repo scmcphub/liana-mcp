@@ -27,6 +27,11 @@ A demo showing scRNA-Seq cell cluster analysis in a AI client Cherry Studio usin
 
 https://github.com/user-attachments/assets/40fb5bd8-a166-4993-9979-3258ef6646a0
 
+
+## 📚 Documentation
+
+scmcphub's complete documentation is available at https://docs.scmcphub.org
+
 ## 🏎️ Quickstart
 
 ### Install
