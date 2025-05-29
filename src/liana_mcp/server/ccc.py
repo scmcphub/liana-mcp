@@ -1,33 +1,30 @@
-from fastmcp import FastMCP, Context
+from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 import liana as li
 import inspect
-from pathlib import Path
-import os
 from ..schema.ccc import *
-from scmcp_shared.util import add_op_log, savefig, filter_args, forward_request, get_ads
+from scmcp_shared.util import add_op_log, filter_args, forward_request, get_ads
 from scmcp_shared.logging_config import setup_logger
-from scmcp_shared.schema import AdataModel
+from scmcp_shared.schema import AdataInfo
 
 ccc_mcp = FastMCP("LianaMCP-CCC-Server")
 
 logger = setup_logger()
 
 @ccc_mcp.tool()
-async def ls_ccc_method():
+def ls_ccc_method():
     """List cell-cell communication method."""
     return str(li.mt.show_methods())
 
 
 @ccc_mcp.tool()
-async def communicate(
+def communicate(
     request: CCCModel,
-    adinfo: AdataModel = AdataModel()
+    adinfo: AdataInfo = AdataInfo()
 ):
     """Cell-cell communication analysis with one method (cellphonedb, cellchat, connectome, natmi, etc.)"""
-
     try:
-        result = await forward_request("ccc_communicate", request, adinfo)
+        result = forward_request("ccc_communicate", request, adinfo)
         if result is not None:
             return result
         ads = get_ads()
@@ -51,14 +48,14 @@ async def communicate(
 
 
 @ccc_mcp.tool()
-async def rank_aggregate(
+def rank_aggregate(
     request: RankAggregateModel, 
-    adinfo: AdataModel = AdataModel()
+    adinfo: AdataInfo = AdataInfo()
 ):
     """Get an aggregate of ligand-receptor scores from multiple Cell-cell communication methods."""
 
     try:
-        result = await forward_request("ccc_rank_aggregate", request, adinfo)
+        result = forward_request("ccc_rank_aggregate", request, adinfo)
         if result is not None:
             return result
         ads = get_ads()

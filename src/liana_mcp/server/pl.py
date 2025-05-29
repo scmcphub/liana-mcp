@@ -1,13 +1,10 @@
-from fastmcp import FastMCP, Context
+from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 import liana as li
-import inspect
-from pathlib import Path
-import os
 from ..schema.pl import *
 from scmcp_shared.util import add_op_log, filter_args, forward_request, savefig, get_ads
 from scmcp_shared.logging_config import setup_logger
-from scmcp_shared.schema import AdataModel
+from scmcp_shared.schema import AdataInfo
 logger = setup_logger()
 
 
@@ -15,13 +12,13 @@ pl_mcp = FastMCP("lianaMCP-pl-Server")
 
 
 @pl_mcp.tool()
-async def circle_plot(
+def circle_plot(
     request: CirclePlotModel, 
-    adinfo: AdataModel = AdataModel()
+    adinfo: AdataInfo = AdataInfo()
 ):
     """Visualize cell-cell communication network using a circular plot."""
     try:
-        result = await forward_request("pl_circle_plot", request, adinfo)
+        result = forward_request("pl_circle_plot", request, adinfo)
         if result is not None:
             return result
         ads = get_ads()
@@ -47,13 +44,13 @@ async def circle_plot(
 
 
 @pl_mcp.tool()
-async def ccc_dotplot(
+def ccc_dotplot(
     request: DotPlotModel, 
-    adinfo: AdataModel = AdataModel()
+    adinfo: AdataInfo = AdataInfo()
 ):
     """Visualize cell-cell communication interactions using a dotplot."""
     try:
-        result = await forward_request("ccc_dotplot", request, adinfo)
+        result = forward_request("ccc_dotplot", request, adinfo)
         if result is not None:
             return result
         
