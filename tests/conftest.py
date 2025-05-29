@@ -2,12 +2,6 @@
 import pytest
 
 @pytest.fixture
-def mcp_config():
-    return {
-        "mcpServers": {
-            "liana-mcp": {
-                "command": "liana-mcp",
-                "args": ["run"]
-            }
-        }
-    }
+def mcp():
+    from liana_mcp.server import LianaMCPManager
+    return LianaMCPManager("liana-mcp").mcp
