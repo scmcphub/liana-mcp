@@ -10,7 +10,7 @@ requires-python = ">=3.10"
 dependencies = [
     "mcp>=1.8.0",
     "fastmcp>=2.3.4",
-    "scmcp-shared>=0.2.5",
+    "scmcp-shared>=0.3.0",
     "liana>=0.1.9",
     "scanpy"
 ]
@@ -23,7 +23,7 @@ dev = [
 
 
 [project.scripts]
-liana-mcp = "liana_mcp.cli:app"
+liana-mcp = "liana_mcp.cli:run_cli"
 
 [build-system]
 requires = ["hatchling"]
