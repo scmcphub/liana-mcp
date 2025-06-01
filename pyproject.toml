@@ -11,7 +11,7 @@ dependencies = [
     "mcp>=1.8.0",
     "fastmcp>=2.3.4",
     "nest_asyncio",
-    "scmcp-shared>=0.3.0",
+    "scmcp-shared>=0.3.5",
     "liana>=0.1.9",
     "scanpy"
 ]
