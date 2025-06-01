@@ -24,7 +24,7 @@ dev = [
 
 
 [project.scripts]
-liana-mcp = "liana_mcp.cli:run_cli"
+liana-mcp = "liana_mcp.cli:cli.run"
 
 [build-system]
 requires = ["hatchling"]

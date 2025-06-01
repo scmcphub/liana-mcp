@@ -12,5 +12,3 @@ cli = MCPCLI(
     manager=LianaMCPManager
 )
 
-def run_cli():
-    cli.app()
