@@ -3,19 +3,27 @@ from pydantic import (
     ValidationInfo,
     computed_field,
     field_validator,
-    model_validator,BaseModel
+    model_validator,
+    BaseModel,
+    ConfigDict
 )
 from typing import Optional, List, Dict, Union, Literal, Tuple
 
 
 
-class CirclePlotModel(BaseModel):
+class CirclePlotParam(BaseModel):
     """Input schema for LIANA's circle_plot visualization for cell-cell communication networks."""
     
     uns_key: Optional[str] = Field(
         default="liana_res",
         description="Key in adata.uns that contains the LIANA results."
     )
+    
+    liana_res: Optional[str] = Field(
+        default=None,
+        description="DataFrame with LIANA results. If None, uses adata.uns[uns_key]."
+    )
+    
     groupby: Optional[str] = Field(
         default=None,
         description="Key to be used for grouping or clustering cells."
@@ -55,6 +63,11 @@ class CirclePlotModel(BaseModel):
         description="If top_n is not None, whether to order by the absolute value of the orderby column."
     )
     
+    filter_fun: str = Field(
+        default=None,
+        description="Custom filter function to apply to the results,like: lambda x: x['specificity_rank'] <= 0.05"
+    )
+    
     source_labels: Optional[Union[List[str], str]] = Field(
         default=None,
         description="List of labels to use as source, the rest are filtered out."
@@ -84,12 +97,7 @@ class CirclePlotModel(BaseModel):
         default="or",
         description="The mode of the mask: 'or' to include source or target, 'and' to include source and target."
     )
-    
-    specificity_cutoff: float = Field(
-        default=0.05,
-        description="specificity or pval threshold for filtering results. "
-    )
-    
+
     figure_size: Tuple[float, float] = Field(
         default=(5, 5),
         description="Figure x,y size."
@@ -136,7 +144,7 @@ class CirclePlotModel(BaseModel):
     )
 
 
-class DotPlotModel(BaseModel):
+class DotPlotParam(BaseModel):
     """Input schema for LIANA's dotplot visualization for cell-cell communication networks."""
     
     uns_key: str = Field(
@@ -144,42 +152,42 @@ class DotPlotModel(BaseModel):
         description="Key in adata.uns that contains the LIANA results."
     )
     
-    specificity_cutoff: float = Field(
-        default=0.05,
-        description="specificity or pval threshold for filtering results. "
+    filter_fun: str = Field(
+        default=None,
+        description="Custom filter function to apply to the results, like: lambda x: x['specificity_rank'] <= 0.05"
     )
         
-    colour: Optional[str] = Field(
-        default=None,
-        description="Column in liana_res to define the colours of the dots."
+    colour: str = Field(
+        ...,
+        description="Column in adata.uns[liana_res] to define the colours of the dots."
     )
     
-    size: Optional[str] = Field(
-        default=None,
-        description="Column in liana_res to define the size of the dots."
+    size: str = Field(
+        ...,
+        description="Column in adata.uns[liana_res] to define the size of the dots."
     )
     
-    source_labels: Optional[Union[List[str], str]] = Field(
+    source_labels: Union[List[str], str] = Field(
         default=None,
         description="List of labels to use as source, the rest are filtered out."
     )
     
-    target_labels: Optional[Union[List[str], str]] = Field(
+    target_labels: Union[List[str], str] = Field(
         default=None,
         description="List of labels to use as target, the rest are filtered out."
     )
     
-    top_n: Optional[int] = Field(
+    top_n: int = Field(
         default=None,
         description="Top N entities to plot."
     )
     
-    orderby: Optional[str] = Field(
+    orderby: str = Field(
         default=None,
         description="If top_n is not None, order the interactions by this column."
     )
     
-    orderby_ascending: Optional[bool] = Field(
+    orderby_ascending: bool = Field(
         default=None,
         description="If top_n is not None, specify how to order the interactions."
     )
@@ -189,12 +197,12 @@ class DotPlotModel(BaseModel):
         description="If top_n is not None, whether to order by the absolute value of the orderby column."
     )
     
-    ligand_complex: Optional[Union[List[str], str]] = Field(
+    ligand_complex: Union[List[str], str] = Field(
         default=None,
         description="List of ligand complexes to filter the interactions to be plotted."
     )
     
-    receptor_complex: Optional[Union[List[str], str]] = Field(
+    receptor_complex: Union[List[str], str] = Field(
         default=None,
         description="List of receptor complexes to filter the interactions to be plotted."
     )
@@ -223,9 +231,3 @@ class DotPlotModel(BaseModel):
         default=(8, 6),
         description="Figure x,y size."
     )
-    
-    specificity_cutoff: float = Field(
-        default=0.05,
-        description="Specificity or p-value threshold for filtering results."
-    )
-

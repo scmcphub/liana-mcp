@@ -1,7 +1,7 @@
 from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 import liana as li
-from ..schema.pl import *
+from ...schema.preset.pl import *
 from scmcp_shared.util import add_op_log, filter_args, forward_request, savefig, get_ads
 from scmcp_shared.logging_config import setup_logger
 from scmcp_shared.schema import AdataInfo
@@ -13,7 +13,7 @@ pl_mcp = FastMCP("lianaMCP-pl-Server")
 
 @pl_mcp.tool()
 def circle_plot(
-    request: CirclePlotModel, 
+    request: CirclePlotParam, 
     adinfo: AdataInfo = AdataInfo()
 ):
     """Visualize cell-cell communication network using a circular plot."""
@@ -45,7 +45,7 @@ def circle_plot(
 
 @pl_mcp.tool()
 def ccc_dotplot(
-    request: DotPlotModel, 
+    request: DotPlotParam, 
     adinfo: AdataInfo = AdataInfo()
 ):
     """Visualize cell-cell communication interactions using a dotplot."""

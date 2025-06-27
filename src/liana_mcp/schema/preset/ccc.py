@@ -8,14 +8,13 @@ from pydantic import (
 from typing import Optional, List, Dict, Union, Literal, Tuple
 
 
-class ListCCCMethodModel(BaseModel):
-    """ListCCCMethodModel"""    
+class ListCCCMethodParam(BaseModel):
+    """ListCCCMethodParam"""    
     pass    
 
 
-class RankAggregateModel(BaseModel):
+class RankAggregateParam(BaseModel):
     """Input schema for LIANA's rank_aggregate method for cell-cell communication analysis."""
-    
     groupby: str = Field(
         ...,  # Required field
         description="Key to be used for grouping or clustering cells (e.g., cell type annotations)."
@@ -82,7 +81,7 @@ class RankAggregateModel(BaseModel):
     )
 
 
-class CCCModel(BaseModel):
+class CCCParam(BaseModel):
     """Input schema for LIANA's cell-cell communication analysis."""
     
     method: Literal[
@@ -98,7 +97,6 @@ class CCCModel(BaseModel):
         default="cellphonedb",
         description="cell-cell communication method"
     )
-    
     groupby: str = Field(
         ...,  # Required field
         description="Key to be used for grouping cells (e.g., cell type annotations)."

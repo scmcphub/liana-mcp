@@ -27,13 +27,14 @@ async def test_ccc_communicate(mcp):
     async with Client(mcp) as client:
         # First read the data
         result = await client.call_tool("io_read", {"request": {"filename": test_dir}})
-        assert "AnnData" in result[0].text
-
+        assert "bulk_labels" in result[0].text
+        print(test_dir)
         # Test cellphonedb method
         result = await client.call_tool("ccc_communicate", {
             "request": {
                 "method": "cellphonedb",
-                "groupby": "bulk_labels"
+                "groupby": "bulk_labels",
+                "use_raw": False
             }
         })
         assert "adata" in result[0].text
@@ -42,7 +43,8 @@ async def test_ccc_communicate(mcp):
         result = await client.call_tool("ccc_communicate", {
             "request": {
                 "method": "cellchat",
-                "groupby": "bulk_labels"
+                "groupby": "bulk_labels",
+                "use_raw": False
             }
         })
         assert "adata" in result[0].text
@@ -61,7 +63,8 @@ async def test_rank_aggregate(mcp):
         result = await client.call_tool("ccc_rank_aggregate", {
             "request": {
                 "methods": ["cellphonedb", "cellchat"],
-                "groupby": "bulk_labels"
+                "groupby": "bulk_labels",
+                "use_raw": False
             }
         })
         assert "adata" in result[0].text

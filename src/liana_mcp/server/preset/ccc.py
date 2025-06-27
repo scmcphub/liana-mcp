@@ -2,7 +2,7 @@ from fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 import liana as li
 import inspect
-from ..schema.ccc import *
+from ...schema.preset.ccc import *
 from scmcp_shared.util import add_op_log, filter_args, forward_request, get_ads
 from scmcp_shared.logging_config import setup_logger
 from scmcp_shared.schema import AdataInfo
@@ -19,7 +19,7 @@ def ls_ccc_method():
 
 @ccc_mcp.tool()
 def communicate(
-    request: CCCModel,
+    request: CCCParam,
     adinfo: AdataInfo = AdataInfo()
 ):
     """Cell-cell communication analysis with one method (cellphonedb, cellchat, connectome, natmi, etc.)"""
@@ -29,6 +29,7 @@ def communicate(
             return result
         ads = get_ads()
         adata = ads.get_adata(adinfo=adinfo)
+        print(adata)
         method = request.method
         method_func = getattr(li.mt, method)
         func_kwargs = filter_args(request, method_func)
@@ -49,7 +50,7 @@ def communicate(
 
 @ccc_mcp.tool()
 def rank_aggregate(
-    request: RankAggregateModel, 
+    request: RankAggregateParam, 
     adinfo: AdataInfo = AdataInfo()
 ):
     """Get an aggregate of ligand-receptor scores from multiple Cell-cell communication methods."""

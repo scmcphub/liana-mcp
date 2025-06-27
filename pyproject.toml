@@ -6,12 +6,25 @@ readme = "README.md"
 authors = [
     { name = "shuang", email = "hsh-me@outlook.com" }
 ]
+
+keywords = [
+    "mcp",
+    "model context protocol",
+    "llm",
+    "agent",
+    "scRNA-seq",
+    "single cell",
+    "bioinformatics",
+    "AI"
+]
+
+
 requires-python = ">=3.10"
 dependencies = [
     "mcp>=1.8.0",
     "fastmcp>=2.3.4",
     "nest_asyncio",
-    "scmcp-shared>=0.3.5",
+    "scmcp-shared>=0.5.0",
     "liana>=0.1.9",
     "scanpy"
 ]
@@ -43,4 +56,5 @@ path = "src/liana_mcp/__init__.py"
 asyncio_mode = "strict"
 asyncio_default_fixture_loop_scope = "function"
 
-
+[tool.ruff]
+lint.ignore = ["F403", "F405"]

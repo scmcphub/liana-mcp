@@ -1,7 +1,10 @@
-from scmcp_shared.server import BaseMCPManager
-from scmcp_shared.server import io_mcp, ScanpyUtilMCP
-from .ccc import ccc_mcp
-from .pl import pl_mcp
+from scmcp_shared.mcp_base import BaseMCPManager
+from .preset.ccc import ccc_mcp
+from .preset.pl import pl_mcp
+from scmcp_shared.server.code import nb_mcp
+from scmcp_shared.server.auto import auto_mcp
+from scmcp_shared.server.preset import io_mcp, ScanpyUtilMCP
+
 
 
 ul_mcp = ScanpyUtilMCP(
@@ -9,15 +12,16 @@ ul_mcp = ScanpyUtilMCP(
 ).mcp
 
 
-
 class LianaMCPManager(BaseMCPManager):
     """Manager class for Liana MCP modules."""
     
-    def _init_modules(self):
+    def init_mcp(self):
         """Initialize available Liana MCP modules."""
         self.available_modules = {
-            "io": io_mcp,
+            "nb": nb_mcp,
             "ccc": ccc_mcp,
             "pl": pl_mcp,
-            "ul": ul_mcp
+            "auto": auto_mcp,
+            "io": io_mcp,
+            "ul": ul_mcp,
         }
