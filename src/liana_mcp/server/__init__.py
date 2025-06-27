@@ -2,7 +2,6 @@ from scmcp_shared.mcp_base import BaseMCPManager
 from .preset.ccc import ccc_mcp
 from .preset.pl import pl_mcp
 from scmcp_shared.server.code import nb_mcp
-from scmcp_shared.server.auto import auto_mcp
 from scmcp_shared.server.preset import io_mcp, ScanpyUtilMCP
 
 
@@ -21,7 +20,6 @@ class LianaMCPManager(BaseMCPManager):
             "nb": nb_mcp,
             "ccc": ccc_mcp,
             "pl": pl_mcp,
-            "auto": auto_mcp,
             "io": io_mcp,
             "ul": ul_mcp,
         }
